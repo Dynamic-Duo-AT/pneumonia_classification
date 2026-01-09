@@ -5,7 +5,7 @@ class Model(nn.Module):
     """Just a dummy model to show how to structure your code"""
     def __init__(self):
         super().__init__()
-        self.layer = nn.Linear(1, 1)
+        self.layer = nn.Linear(2, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         return self.layer(x)
