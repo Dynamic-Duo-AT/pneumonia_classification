@@ -146,16 +146,6 @@ def create_dataloaders(
     
 
 if __name__ == "__main__":
-    #typer.run(create_dataloaders)
-
-    # test dataloaders
-    data_path = Path("data")
-    dataloaders = create_dataloaders(data_path, batch_size=8)
-    train_loader = dataloaders["train"]
-    for batch_idx, (x, labels) in enumerate(train_loader):
-        print(f"Batch {batch_idx}: x.shape = {x.shape}, labels = {labels}")
-        # 4x4 grid of images
-        grid_img = torchvision.utils.make_grid(x, nrow=4, normalize=True)
-        plt.imshow(grid_img.permute(1, 2, 0).squeeze())
-        if batch_idx == 2:
-            break
+    typer.run(create_dataloaders)
+    
+    
