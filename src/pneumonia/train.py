@@ -1,10 +1,65 @@
 from pneumonia.model import Model
-from pneumonia.data import MyDataset
+from pneumonia.data import XRayDataset, create_dataloaders
+import matplotlib.pyplot as plt
+import torch
+import typer
+import wandb
 
-def train():
-    dataset = MyDataset("data/raw")
-    model = Model()
-    # add rest of your training code here
+# Training script. Add description later. 
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
+
+def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
+    print("Training started...")
+    print(f"{lr=}, {batch_size=}, {epochs=}")
+    run = wandb.init(
+        entity="Dynamic_Duo",
+        project="Pneumonia-Classification",
+        config={"lr": lr, "batch_size": batch_size, "epochs": epochs},
+    )
+
+    model = Model().to(DEVICE)
+
+    #Creating three dataloaders for train, val and test sets
+    dataloaders = create_dataloaders("data/", batch_size=batch_size)
+
+    loss_fn = torch.nn.BCEWithLogitsLoss()
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+
+    for epoch in range(epochs):
+        model.train()
+
+        preds, targets = [], []
+        for i, (img, target) in enumerate(dataloaders["train"]):
+            img, target = img.to(DEVICE), target.to(DEVICE)
+            optimizer.zero_grad()
+            y_pred = model(img)
+            loss = loss_fn(y_pred, target)
+            loss.backward()
+            optimizer.step()
+            accuracy = (y_pred.argmax(dim=1) == target).float().mean().item()
+            wandb.log({"train_loss": loss.item(), "train_accuracy": accuracy})
+
+            preds.append(y_pred.detach().cpu())
+            targets.append(target.detach().cpu())
+
+            if i % 100 == 0:
+                print(f"Epoch {epoch}, iter {i}, loss: {loss.item()}")
+
+        # Validation loop
+        model.eval()
+        val_preds, val_targets = [], []
+        with torch.no_grad():
+            for img, target in dataloaders["val"]:
+                img, target = img.to(DEVICE), target.to(DEVICE)
+                y_pred = model(img)
+                val_loss = loss_fn(y_pred, target)
+                val_accuracy = (y_pred.argmax(dim=1) == target).float().mean().item()
+                wandb.log({"val_loss": val_loss.item(), "val_accuracy": val_accuracy})
+
+                val_preds.append(y_pred.detach().cpu())
+                val_targets.append(target.detach().cpu())
+        
 
 if __name__ == "__main__":
-    train()
+    typer.run(train)

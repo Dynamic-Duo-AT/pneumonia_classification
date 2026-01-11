@@ -2,6 +2,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 
+# Model script. Add description later. 
+
 class Model(nn.Module):
     def __init__(self, model_channels: int = 16, multiplier: list = [1,2,3]) -> None:
         super().__init__()
