@@ -40,7 +40,7 @@ pathspec==1.0.2
 platformdirs==4.5.1
 pluggy==1.6.0
 -e .
-pre-commit==4.1.0
+pre-commit==4.5.1
 pydantic==2.12.5
 pydantic-core==2.41.5
 pygments==2.19.2
