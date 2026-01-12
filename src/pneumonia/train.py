@@ -1,9 +1,9 @@
-from pneumonia.model import Model
-from pneumonia.data import XRayDataset, create_dataloaders
-import matplotlib.pyplot as plt
 import torch
 import typer
+
 import wandb
+from pneumonia.data import create_dataloaders
+from pneumonia.model import Model
 
 # Training script. Add description later. 
 
@@ -12,7 +12,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
     print("Training started...")
     print(f"{lr=}, {batch_size=}, {epochs=}")
-    run = wandb.init(
+    wandb.init(
         entity="Dynamic_Duo",
         project="Pneumonia-Classification",
         config={"lr": lr, "batch_size": batch_size, "epochs": epochs},

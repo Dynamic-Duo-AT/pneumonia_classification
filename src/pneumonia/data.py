@@ -1,12 +1,10 @@
-import typer
-import torchvision
-from pathlib import Path
 from glob import glob
-import matplotlib.pyplot as plt
+from pathlib import Path
 
 import torch
-from torch.utils.data import Dataset, DataLoader
+import typer
 from PIL import Image
+from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms.functional import pil_to_tensor
 
 
