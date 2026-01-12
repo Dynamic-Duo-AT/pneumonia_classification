@@ -61,6 +61,10 @@ def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
 
                 val_preds.append(y_pred.detach().cpu())
                 val_targets.append(target.detach().cpu())
+    print("Training completed.")
+
+    # Save the trained model
+    torch.save(model.state_dict(), "models/model.pth")
         
 
 if __name__ == "__main__":
