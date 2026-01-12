@@ -31,13 +31,14 @@ def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
 
         preds, targets = [], []
         for i, (img, target) in enumerate(dataloaders["train"]):
-            img, target = img.to(DEVICE), target.to(DEVICE)
+            img, target = img.to(DEVICE), target.to(DEVICE).float()
             optimizer.zero_grad()
             y_pred = model(img)
             loss = loss_fn(y_pred, target)
             loss.backward()
             optimizer.step()
-            accuracy = (y_pred.argmax(dim=1) == target).float().mean().item()
+            preds_binary = (torch.sigmoid(y_pred) > 0.5).float()
+            accuracy = (preds_binary == target).float().mean().item()
             wandb.log({"train_loss": loss.item(), "train_accuracy": accuracy})
 
             preds.append(y_pred.detach().cpu())
@@ -51,10 +52,11 @@ def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
         val_preds, val_targets = [], []
         with torch.no_grad():
             for img, target in dataloaders["val"]:
-                img, target = img.to(DEVICE), target.to(DEVICE)
+                img, target = img.to(DEVICE), target.to(DEVICE).float()
                 y_pred = model(img)
                 val_loss = loss_fn(y_pred, target)
-                val_accuracy = (y_pred.argmax(dim=1) == target).float().mean().item()
+                val_preds_binary = (torch.sigmoid(y_pred) > 0.5).float()
+                val_accuracy = (val_preds_binary == target).float().mean().item()
                 wandb.log({"val_loss": val_loss.item(), "val_accuracy": val_accuracy})
 
                 val_preds.append(y_pred.detach().cpu())

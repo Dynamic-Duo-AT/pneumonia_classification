@@ -22,7 +22,7 @@ class Model(nn.Module):
         x = torch.max_pool2d(x, 2, 2)
         x = torch.flatten(x, 1)
         x = self.dropout(x)
-        output = self.fc1(x)
+        output = self.fc1(x).view(-1)
         return output
 
 

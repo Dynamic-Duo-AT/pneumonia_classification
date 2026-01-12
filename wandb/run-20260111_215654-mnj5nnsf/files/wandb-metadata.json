@@ -1,0 +1,40 @@
+{
+  "os":  "Windows-11-10.0.26200-SP0",
+  "python":  "CPython 3.12.12",
+  "startedAt":  "2026-01-11T20:56:54.971702Z",
+  "program":  "C:\\Users\\andre\\Desktop\\Job\\mlops\\pneumonia_classification\\src\\pneumonia\\train.py",
+  "codePath":  "src\\pneumonia\\train.py",
+  "codePathLocal":  "src\\pneumonia\\train.py",
+  "git":  {
+    "remote":  "https://github.com/Dynamic-Duo-AT/pneumonia_classification.git",
+    "commit":  "f92f35c47ec9e45fa72cb7066581a280ab0edc5a"
+  },
+  "email":  "andreas.r.p@hotmail.com",
+  "root":  "C:\\Users\\andre\\Desktop\\Job\\mlops\\pneumonia_classification",
+  "host":  "DESKTOP-5L4VT8F",
+  "executable":  "C:\\Users\\andre\\Desktop\\Job\\mlops\\pneumonia_classification\\.venv\\Scripts\\python.exe",
+  "cpu_count":  8,
+  "cpu_count_logical":  16,
+  "gpu":  "NVIDIA GeForce RTX 3070",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "999012954112",
+      "used":  "610668249088"
+    }
+  },
+  "memory":  {
+    "total":  "34248056832"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 3070",
+      "memoryTotal":  "8589934592",
+      "cudaCores":  5888,
+      "architecture":  "Ampere",
+      "uuid":  "GPU-9d1fd6a0-9632-bfe2-64fd-3725dfb93fa0"
+    }
+  ],
+  "cudaVersion":  "13.0",
+  "writerId":  "gl0s1gazpd68tv3kjiijznq01kofhau1"
+}
