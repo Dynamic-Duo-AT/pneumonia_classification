@@ -80,8 +80,8 @@ class XRayDataset(Dataset):
         Convert PIL grayscale image -> normalized tensor -> uint8 tensor for saving.
         Output shape: (H, W) uint8
         """
-        x = pil_to_tensor(img).float() / 255.0       # (1,H,W)
-        x = (x - mean) / std                         # normalized
+        x = pil_to_tensor(img).float() / 255.0  # (1,H,W)
+        x = (x - mean) / std  # normalized
         x = (x * 255).clamp(0, 255).byte().squeeze(0)  # (H,W) uint8
         return x
 
@@ -93,14 +93,14 @@ class XRayDataset(Dataset):
         for file in train_files:
             img = self._load_and_resize_grayscale(file)
             x = pil_to_tensor(img).float() / 255.0  # (1,H,W)
-            x = x.squeeze(0)                        # (H,W)
+            x = x.squeeze(0)  # (H,W)
 
             sum_ += x.sum()
-            sum_sq += (x ** 2).sum()
+            sum_sq += (x**2).sum()
             num_pixels += x.numel()
 
         mean = sum_ / num_pixels
-        std = torch.sqrt((sum_sq / num_pixels) - mean ** 2)
+        std = torch.sqrt((sum_sq / num_pixels) - mean**2)
         return mean, std
 
     def _process_and_save_split(
@@ -119,6 +119,7 @@ class XRayDataset(Dataset):
             # Save as .pt tensor file instead of image
             torch.save(x_normalized, output_dir / f"{Path(file).stem}.pt")
 
+
 def create_dataloaders(
     data_path: Path, batch_size: int = typer.Option(32, help="Batch size for DataLoaders")
 ) -> dict[str, DataLoader]:
@@ -135,15 +136,10 @@ def create_dataloaders(
     dataloaders = {}
     for split in ["train", "test", "val"]:
         dataset = XRayDataset(data_path, split)
-        dataloader = DataLoader(
-            dataset, batch_size=batch_size, shuffle=True, num_workers=0
-        )
+        dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
         dataloaders[split] = dataloader
     return dataloaders
-    
-    
+
 
 if __name__ == "__main__":
     typer.run(create_dataloaders)
-    
-    

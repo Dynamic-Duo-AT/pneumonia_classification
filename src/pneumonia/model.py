@@ -1,10 +1,11 @@
 import torch
 from torch import nn
 
-# Model script. Add description later. 
+# Model script. Add description later.
+
 
 class Model(nn.Module):
-    def __init__(self, model_channels: int = 16, multiplier: list = [1,2,3]) -> None:
+    def __init__(self, model_channels: int = 16, multiplier: list = [1, 2, 3]) -> None:
         super().__init__()
         self.conv1 = nn.Conv2d(1, model_channels * multiplier[0], 3, 1)
         self.conv2 = nn.Conv2d(model_channels * multiplier[0], model_channels * multiplier[1], 3, 1)
