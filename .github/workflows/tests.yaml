@@ -28,7 +28,6 @@ jobs:
           uv sync --locked --dev
           uv tree
 
-      - name: Run tests & coverage
+      - name: Run tests
         run: |
-          uv run coverage run --ignore-errors -m pytest tests/
-          uv run coverage report -m
+          uv run pytest tests/
