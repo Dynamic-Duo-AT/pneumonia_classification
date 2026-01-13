@@ -11,14 +11,14 @@ from torchvision.transforms.functional import pil_to_tensor
 class XRayDataset(Dataset):
     """My custom dataset."""
 
-    def __init__(self, data_path: Path, split: str = "train", image_size: int = 384) -> None:
+    def __init__(self, data_path: Path, pre_process_overrule: bool = False, split: str = "train", image_size: int = 384) -> None:
         self.unprocessed_path = Path(data_path) / "raw"
         self.processed_path = Path(data_path) / "processed"
         self.split = split
         self.image_size = image_size
 
         # Ensure preprocessing has happened for the split
-        if not self._is_split_preprocessed(self.split):
+        if not self._is_split_preprocessed(self.split) and not pre_process_overrule:
             self.preprocess_data()
 
         self.files = sorted((self.processed_path / self.split).glob("*.pt"))
@@ -39,8 +39,6 @@ class XRayDataset(Dataset):
         self.processed_path.mkdir(parents=True, exist_ok=True)
 
         train_files = self._list_jpegs(self.unprocessed_path / "train")
-        if len(train_files) == 0:
-            raise FileNotFoundError(f"No training .jpeg files found under: {self.unprocessed_path / 'train'}")
 
         print(f"Found {len(train_files)} training images.")
 

@@ -1,8 +1,8 @@
-from pneumonia.data import MyDataset
+from pneumonia.data import XRayDataset
 from torch.utils.data import Dataset
 
 
-def test_my_dataset():
-    """Test the MyDataset class."""
-    dataset = MyDataset("data/raw")
+def test_xray_dataset():
+    """Test the XRayDataset class."""
+    dataset = XRayDataset("data", pre_process_overrule=True)
     assert isinstance(dataset, Dataset)
