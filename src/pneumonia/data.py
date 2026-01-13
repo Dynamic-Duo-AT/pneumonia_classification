@@ -11,7 +11,9 @@ from torchvision.transforms.functional import pil_to_tensor
 class XRayDataset(Dataset):
     """My custom dataset."""
 
-    def __init__(self, data_path: Path, pre_process_overrule: bool = False, split: str = "train", image_size: int = 384) -> None:
+    def __init__(
+        self, data_path: Path, pre_process_overrule: bool = False, split: str = "train", image_size: int = 384
+    ) -> None:
         self.unprocessed_path = Path(data_path) / "raw"
         self.processed_path = Path(data_path) / "processed"
         self.split = split
