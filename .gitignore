@@ -1,5 +1,6 @@
 docs/site/
 wandb/
+outputs/
 
 # data files
 data/

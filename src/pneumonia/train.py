@@ -1,6 +1,8 @@
-import torch
-import typer
+from pathlib import Path
 import wandb
+import hydra
+import torch
+from omegaconf import DictConfig, OmegaConf
 
 from pneumonia.data import create_dataloaders
 from pneumonia.model import Model
@@ -10,19 +12,31 @@ from pneumonia.model import Model
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 
-def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
+def train(
+    lr: float = 0.001,
+    batch_size: int = 32,
+    epochs: int = 1,
+    model_path: str = "models/model.pth",
+    model: str = "baseline",
+    data_path: str = "data/",
+) -> None:
     print("Training started...")
     print(f"{lr=}, {batch_size=}, {epochs=}")
+
     wandb.init(
         entity="Dynamic_Duo",
         project="Pneumonia-Classification",
         config={"lr": lr, "batch_size": batch_size, "epochs": epochs},
     )
 
-    model = Model().to(DEVICE)
+    # model selection
+    if model == "baseline":
+        model = Model().to(DEVICE)
+    else:
+        raise ValueError("Model not implemented.")
 
     # Creating three dataloaders for train, val and test sets
-    dataloaders = create_dataloaders("data/", batch_size=batch_size)
+    dataloaders = create_dataloaders(data_path, batch_size=batch_size)
 
     loss_fn = torch.nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
@@ -65,8 +79,26 @@ def train(lr: float = 0.001, batch_size: int = 32, epochs: int = 1) -> None:
     print("Training completed.")
 
     # Save the trained model
-    torch.save(model.state_dict(), "models/model.pth")
+    torch.save(model.state_dict(), model_path)
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+CONFIG_DIR = REPO_ROOT / "configs" / "experiments"
+
+
+@hydra.main(version_base=None, config_path=str(CONFIG_DIR), config_name="exp1")
+def main(cfg: DictConfig) -> None:
+    print("Config:\n", OmegaConf.to_yaml(cfg))
+
+    train(
+        lr=cfg.trainer.lr,
+        batch_size=cfg.trainer.batch_size,
+        epochs=cfg.trainer.epochs,
+        model_path=cfg.trainer.model_path,
+        model=cfg.model.name,
+        data_path=cfg.data.path,
+    )
 
 
 if __name__ == "__main__":
-    typer.run(train)
+    main()

@@ -21,6 +21,12 @@ def train(ctx: Context) -> None:
 
 
 @task
+def exp1(ctx: Context) -> None:
+    """Run experiment exp1"""
+    ctx.run("uv run python -m pneumonia.train --config-name exp1", echo=True, pty=not WINDOWS)
+
+
+@task
 def test(ctx: Context) -> None:
     """Run tests."""
     ctx.run("uv run coverage run -m pytest tests/", echo=True, pty=not WINDOWS)
