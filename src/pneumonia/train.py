@@ -1,7 +1,7 @@
 import torch
 import typer
-
 import wandb
+
 from pneumonia.data import create_dataloaders
 from pneumonia.model import Model
 
