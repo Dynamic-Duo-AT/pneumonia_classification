@@ -1,6 +1,7 @@
 
 import torch
 import typer
+
 from pneumonia.data import create_dataloaders
 from pneumonia.model import Model
 
