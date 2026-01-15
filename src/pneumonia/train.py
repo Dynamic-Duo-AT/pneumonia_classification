@@ -2,8 +2,8 @@ from pathlib import Path
 
 import hydra
 import torch
-from loguru import logger
 import wandb
+from loguru import logger
 from omegaconf import DictConfig, OmegaConf
 
 from pneumonia.data import create_dataloaders
