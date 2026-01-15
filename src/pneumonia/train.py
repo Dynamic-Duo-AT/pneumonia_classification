@@ -2,6 +2,7 @@ from pathlib import Path
 
 import hydra
 import torch
+from loguru import logger
 import wandb
 from omegaconf import DictConfig, OmegaConf
 
@@ -36,8 +37,8 @@ def train(
         model: Model architecture to use.
         data_path: Path to the dataset.
     """
-    print("Training started...")
-    print(f"{lr=}, {batch_size=}, {epochs=}")
+    logger.info("Training started...")
+    logger.info(f"{lr=}, {batch_size=}, {epochs=}")
 
     # Initialize wandb
     wandb.init(
@@ -49,18 +50,20 @@ def train(
     # model selection
     if model == "baseline":
         model = Model().to(DEVICE)
+        logger.info("Using baseline model.")
     else:
+        logger.error(f"Model {model} not implemented.")
         raise ValueError("Model not implemented.")
 
     # Creating three dataloaders for train, val and test sets
-    print("Creating dataloaders...")
+    logger.info("Creating dataloaders...")
     dataloaders = create_dataloaders(data_path, batch_size=batch_size)
 
     # defining loss function and optimizer
     loss_fn = torch.nn.BCEWithLogitsLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    print("Starting training loop...")
+    logger.info("Starting training loop...")
     # Training loop
     for epoch in range(epochs):
         model.train()
@@ -77,7 +80,7 @@ def train(
             wandb.log({"train_loss": loss.item(), "train_accuracy": accuracy})
 
             if i % 100 == 0:
-                print(f"Epoch {epoch}, iter {i}, loss: {loss.item()}")
+                logger.info(f"Epoch {epoch}, iter {i}, loss: {loss.item()}")
 
         # Validation loop
         model.eval()
@@ -90,9 +93,10 @@ def train(
                 val_preds_binary = (torch.sigmoid(y_pred) > 0.5).float()
                 val_accuracy = (val_preds_binary == target).float().mean().item()
                 wandb.log({"val_loss": val_loss.item(), "val_accuracy": val_accuracy})
-    print("Training completed.")
+    logger.info("Training completed.")
 
     # Save the trained model
+    logger.info(f"Saving model to {model_path}...")
     torch.save(model.state_dict(), model_path)
 
 
@@ -105,7 +109,15 @@ def main(cfg: DictConfig) -> None:
     Args:
         cfg: Hydra configuration object.
     """
-    print("Config:\n", OmegaConf.to_yaml(cfg))
+    # setup logger
+    logger.remove()
+    logger.add(
+        cfg.loguru.log_dir + "/train.log",
+        level=cfg.loguru.level,
+        format="{time} {level} {message}",
+    )
+
+    logger.info("Config:\n", OmegaConf.to_yaml(cfg))
 
     train(
         lr=cfg.trainer.lr,

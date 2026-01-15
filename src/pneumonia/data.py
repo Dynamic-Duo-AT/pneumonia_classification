@@ -3,6 +3,7 @@ from pathlib import Path
 
 import torch
 import typer
+from loguru import logger
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision.transforms.functional import pil_to_tensor
@@ -28,10 +29,11 @@ class XRayDataset(Dataset):
 
         # Ensure preprocessing has happened for the split
         if not self._is_split_preprocessed(self.split) and pre_process_overrule is False:
-            print(f"Preprocessing data for split: {self.split}")
+            logger.info(f"Preprocessing data for split: {self.split}")
             self.preprocess_data()
 
         self.files = sorted((self.processed_path / self.split).glob("*.pt"))
+        logger.info(f"Loaded {len(self.files)} samples for split: {self.split}")
 
     def __len__(self) -> int:
         """
@@ -63,12 +65,12 @@ class XRayDataset(Dataset):
 
         train_files = self._list_jpegs(self.unprocessed_path / "train")
 
-        print(f"Found {len(train_files)} training images.")
+        logger.info(f"Found {len(train_files)} training images.")
 
         mean, std = self._compute_mean_std(train_files)
 
-        print("Grayscale mean:", float(mean))
-        print("Grayscale std :", float(std))
+        logger.info("Grayscale mean:", float(mean))
+        logger.info("Grayscale std :", float(std))
 
         for split in ("train", "test", "val"):
             split_files = self._list_jpegs(self.unprocessed_path / split)
@@ -78,7 +80,7 @@ class XRayDataset(Dataset):
                 mean=mean,
                 std=std,
             )
-            print(f"Preprocessing completed {split} ({len(split_files)} images).")
+            logger.info(f"Preprocessing completed {split} ({len(split_files)} images).")
 
     def _is_split_preprocessed(self, split: str) -> bool:
         """

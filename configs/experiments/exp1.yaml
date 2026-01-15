@@ -13,3 +13,7 @@ data:
 wandb:
   entity: Dynamic_Duo
   project: Pneumonia-Classification
+
+loguru:
+  log_dir: outputs/${now:%Y-%m-%d}/${now:%H-%M-%S}
+  level: INFO

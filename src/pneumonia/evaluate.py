@@ -2,6 +2,7 @@ from pathlib import Path
 
 import hydra
 import torch
+from loguru import logger
 from omegaconf import DictConfig, OmegaConf
 
 from pneumonia.data import create_dataloaders
@@ -14,7 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = REPO_ROOT / "configs" / "experiments"
 
 
-def evaluate(model_checkpoint: str, model_type: str, data_dir: str) -> None:
+def evaluate(model_checkpoint: str, model_type: str, data_dir: str, batch_size: int = 32) -> None:
     """
     Evaluate a trained model.
 
@@ -26,21 +27,21 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str) -> None:
     Returns:
         Accuracy on the test set.
     """
-    print("Evaluating...")
-    print("Checkpoint:", model_checkpoint)
-    print("Model type:", model_type)
-    print("Data dir:", data_dir)
+    logger.info("Evaluating...")
+    logger.info(f"Checkpoint: {model_checkpoint}")
+    logger.info(f"Model type: {model_type}")
+    logger.info(f"Data dir: {data_dir}")
 
     # Load model
-    if model_type != "baseline":
-        print(f"Using model type: {model_type}")
+    if model_type == "baseline":
+        logger.info(f"Using model type: {model_type}")
         model = Model().to(DEVICE)
         model.load_state_dict(torch.load(model_checkpoint))
     else:
         raise NotImplementedError("Only 'baseline' model type is supported in this script.")
 
     # Create dataloaders
-    data_loaders = create_dataloaders(data_dir, batch_size=32)
+    data_loaders = create_dataloaders(data_dir, batch_size=batch_size)
     test_dataloader = data_loaders["test"]
 
     model.eval()
@@ -57,6 +58,10 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str) -> None:
 
     # compute accuracy
     accuracy = correct / total
+
+    # log
+    logger.info(f"Test accuracy: {accuracy}")
+    # so you can view without looking at logs
     print(f"Test accuracy: {accuracy}")
 
     return accuracy
@@ -69,7 +74,14 @@ def main(cfg: DictConfig) -> None:
     Args:
         cfg: Hydra configuration object.
     """
-    print("Config:\n", OmegaConf.to_yaml(cfg))
+    # setup logger
+    logger.remove()
+    logger.add(
+        cfg.loguru.log_dir + "/test.log",
+        level=cfg.loguru.level,
+        format="{time} {level} {message}",
+    )
+    logger.info("Config:\n", OmegaConf.to_yaml(cfg))
 
     # reuse the SAME config fields you used in training
     evaluate(

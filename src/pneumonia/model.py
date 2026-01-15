@@ -6,6 +6,13 @@ from torch import nn
 
 class Model(nn.Module):
     def __init__(self, model_channels: int = 16, multiplier: list = [1, 2, 3]) -> None:
+        """
+        Simple CNN model for pneumonia classification.
+
+        Args:
+            model_channels: Base number of channels.
+            multiplier: List of multipliers for each conv layer.
+        """
         super().__init__()
         self.conv1 = nn.Conv2d(1, model_channels * multiplier[0], 3, 1)
         self.conv2 = nn.Conv2d(model_channels * multiplier[0], model_channels * multiplier[1], 3, 1)
@@ -14,7 +21,15 @@ class Model(nn.Module):
         self.fc1 = nn.Linear(48 * 46 * 46, 1)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass."""
+        """
+        Forward pass.
+
+        Args:
+            x: Input tensor of shape (N, 1, 384, 384).
+
+        Returns:
+            Output tensor of shape (N,).
+        """
         x = torch.relu(self.conv1(x))
         x = torch.max_pool2d(x, 2, 2)
         x = torch.relu(self.conv2(x))
