@@ -1,12 +1,16 @@
 docs/site/
 wandb/
 outputs/
+models/
 
 # data files
 data/
 
 # test cache
 manual_test/
+
+# Ruff
+.ruff_cache/
 
 # other local dev info
 .vscode/
