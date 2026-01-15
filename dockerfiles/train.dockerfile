@@ -15,4 +15,4 @@ COPY data ./data
 COPY README.md README.md
 
 RUN uv sync --locked --no-cache --no-install-project
-ENTRYPOINT ["uv", "run", "inv", "exp1_train"]
+ENTRYPOINT ["uv", "run", "inv", "exp1-train"]
