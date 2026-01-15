@@ -9,35 +9,56 @@ from torchvision.transforms.functional import pil_to_tensor
 
 
 class XRayDataset(Dataset):
-    """My custom dataset."""
-
     def __init__(
         self, data_path: Path, pre_process_overrule: bool = False, split: str = "train", image_size: int = 384
     ) -> None:
+        """
+        Dataset for Pneumonia X-Ray images.
+
+        Args:
+            data_path: Path to the data directory.
+            pre_process_overrule: If True, forces preprocessing even if already done.
+            split: One of 'train', 'test', or 'val'.
+            image_size: Size to which images are resized (image_size x image_size).
+        """
         self.unprocessed_path = Path(data_path) / "raw"
         self.processed_path = Path(data_path) / "processed"
         self.split = split
         self.image_size = image_size
 
         # Ensure preprocessing has happened for the split
-        if not self._is_split_preprocessed(self.split) and not pre_process_overrule:
+        if not self._is_split_preprocessed(self.split) and pre_process_overrule is False:
+            print(f"Preprocessing data for split: {self.split}")
             self.preprocess_data()
 
         self.files = sorted((self.processed_path / self.split).glob("*.pt"))
 
     def __len__(self) -> int:
+        """
+        Return the number of samples in the dataset.
+        """
         return len(self.files)
 
     def __getitem__(self, idx: int):
+        """
+        Get a sample from the dataset.
+
+        Args:
+            idx: Index of the sample.
+
+        Returns:
+            Tuple of (image tensor, label).
+        """
         img_path = self.files[idx]
-        x = torch.load(img_path).unsqueeze(0).float() / 255.0  # (1,H,W), [0,1]
+        # load the float tensor saved as .pt
+        x = torch.load(img_path)  # (1,H,W) normalized float tensor
         label = 1 if "bacteria" in img_path.name or "virus" in img_path.name else 0
         return x, label
 
-    # ----------------------------
-    # Preprocessing orchestration
-    # ----------------------------
     def preprocess_data(self):
+        """
+        Preprocess raw images and save as tensors.
+        """
         self.processed_path.mkdir(parents=True, exist_ok=True)
 
         train_files = self._list_jpegs(self.unprocessed_path / "train")
@@ -59,33 +80,72 @@ class XRayDataset(Dataset):
             )
             print(f"Preprocessing completed {split} ({len(split_files)} images).")
 
-    # ----------------------------
-    # Helpers
-    # ----------------------------
     def _is_split_preprocessed(self, split: str) -> bool:
+        """
+        Check if a split has been preprocessed.
+
+        Args:
+            split: One of 'train', 'test', or 'val'.
+
+        Returns:
+            True if preprocessed data exists for the split, False otherwise.
+        """
         split_dir = self.processed_path / split
         return split_dir.exists() and any(split_dir.glob("*.pt"))
 
     @staticmethod
     def _list_jpegs(folder: Path) -> list[str]:
+        """
+        List all .jpeg files in a folder recursively.
+
+        Args:
+            folder: Path to the folder.
+
+        Returns:
+            List of .jpeg file paths.
+        """
         # Recursive glob for .jpeg
         return glob(str(Path(folder) / "**" / "*.jpeg"), recursive=True)
 
     def _load_and_resize_grayscale(self, file: str) -> Image.Image:
+        """ "
+        Load an image file, convert to grayscale, and resize.
+
+        Args:
+            file: Path to the image file.
+
+        Returns:
+            Resized grayscale PIL Image.
+        """
         return Image.open(file).convert("L").resize((self.image_size, self.image_size))
 
     @staticmethod
-    def _normalize_to_uint8(img: Image.Image, mean: torch.Tensor, std: torch.Tensor) -> torch.Tensor:
+    def _normalize(img: Image.Image, mean: torch.Tensor, std: torch.Tensor) -> torch.Tensor:
         """
-        Convert PIL grayscale image -> normalized tensor -> uint8 tensor for saving.
-        Output shape: (H, W) uint8
+        Normalize a PIL image tensor.
+
+        Args:
+            img: PIL Image.
+            mean: Mean tensor.
+            std: Std tensor.
+
+        Returns:
+            Normalized image tensor.
         """
         x = pil_to_tensor(img).float() / 255.0  # (1,H,W)
         x = (x - mean) / std  # normalized
-        x = (x * 255).clamp(0, 255).byte().squeeze(0)  # (H,W) uint8
         return x
 
     def _compute_mean_std(self, train_files: list[str]) -> tuple[torch.Tensor, torch.Tensor]:
+        """
+        Compute mean and std of grayscale images in the training set.
+
+        Args:
+            train_files: List of training image file paths.
+
+        Returns:
+            Tuple of (mean, std) tensors.
+        """
         sum_ = 0.0
         sum_sq = 0.0
         num_pixels = 0
@@ -110,11 +170,20 @@ class XRayDataset(Dataset):
         mean: torch.Tensor,
         std: torch.Tensor,
     ) -> None:
+        """
+        Process and save all images in a split.
+
+        Args:
+            files: List of image file paths.
+            output_dir: Directory to save processed tensors.
+            mean: Mean tensor for normalization.
+            std: Std tensor for normalization.
+        """
         output_dir.mkdir(parents=True, exist_ok=True)
 
         for file in files:
             img = self._load_and_resize_grayscale(file)
-            x_normalized = self._normalize_to_uint8(img, mean, std)
+            x_normalized = self._normalize(img, mean, std)
 
             # Save as .pt tensor file instead of image
             torch.save(x_normalized, output_dir / f"{Path(file).stem}.pt")
@@ -135,7 +204,7 @@ def create_dataloaders(
     """
     dataloaders = {}
     for split in ["train", "test", "val"]:
-        dataset = XRayDataset(data_path, split)
+        dataset = XRayDataset(data_path, False, split)
         dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True, num_workers=0)
         dataloaders[split] = dataloader
     return dataloaders
