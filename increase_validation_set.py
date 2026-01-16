@@ -1,9 +1,11 @@
-from pathlib import Path
 import random
 import shutil
+from pathlib import Path
+
 import typer
 
 """Script to move a fraction of training data to validation set."""
+
 
 def move_train_to_val(
     raw_dir: Path,
@@ -17,7 +19,7 @@ def move_train_to_val(
         raise ValueError("frac must be between 0 and 1")
 
     train_dir = raw_dir / "train"
-    val_dir   = raw_dir / "val"
+    val_dir = raw_dir / "val"
 
     # collect class subdirs (e.g., NORMAL, PNEUMONIA)
     class_dirs = [p for p in train_dir.iterdir() if p.is_dir()]
@@ -30,8 +32,8 @@ def move_train_to_val(
         k = int(len(files) * frac)
         chosen = random.sample(files, k) if k > 0 else []
         for src in chosen:
-            rel = src.relative_to(train_dir)  
-            dst = val_dir / rel               
+            rel = src.relative_to(train_dir)
+            dst = val_dir / rel
             moves.append((src, dst))
 
     print(f"Planned moves: {len(moves)} files (frac={frac}, seed={seed})")
@@ -49,4 +51,3 @@ def move_train_to_val(
 
 if __name__ == "__main__":
     typer.run(move_train_to_val)
-
