@@ -1,11 +1,11 @@
-
+import os
 from contextlib import asynccontextmanager
 
-import os
 import torch
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from PIL import Image
+
 from pneumonia.model import Model
 
 
@@ -41,16 +41,21 @@ async def pred(data: UploadFile = File(...)):
     # preprocess
     i_image = Image.open(data.file)
     if i_image.mode != "L":
-        i_image = i_image.convert(mode="L") 
-    i_image = i_image.resize((int(size), int(size))) 
-    
+        i_image = i_image.convert(mode="L")
+    i_image = i_image.resize((int(size), int(size)))
+
     # check if image is stored as 8-bit or float
     _, hi = i_image.getextrema()
     if hi > 1:
-        i_image = torch.tensor((torch.ByteTensor(torch.ByteStorage.from_buffer(i_image.tobytes()))).float().view(int(size), int(size)) / 255.0) # [size,size]
+        i_image = torch.tensor(
+            (torch.ByteTensor(torch.ByteStorage.from_buffer(i_image.tobytes()))).float().view(int(size), int(size))
+            / 255.0
+        )  # [size,size]
     else:
-        i_image = torch.tensor((torch.ByteTensor(torch.ByteStorage.from_buffer(i_image.tobytes()))).float().view(int(size), int(size))) # [size,size]
-    
+        i_image = torch.tensor(
+            (torch.ByteTensor(torch.ByteStorage.from_buffer(i_image.tobytes()))).float().view(int(size), int(size))
+        )  # [size,size]
+
     # normalize
     i_image = (i_image - float(mean)) / float(std)  # [size,size]
     i_image = i_image.unsqueeze(0).unsqueeze(0).to(device)  # [1,1,size,size]
