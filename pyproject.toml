@@ -32,6 +32,7 @@ dependencies = [
     "dvc-gs>=3.0.2",
     "dvc>=3.65.0",
     "dvc-gdrive>=3.0.1",
+    "python-multipart>=0.0.21",
 ]
 
 [dependency-groups]
