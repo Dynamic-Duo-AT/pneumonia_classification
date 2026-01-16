@@ -16,6 +16,8 @@ async def lifespan(app: FastAPI):
     load_dotenv()
     print("Loading model")
     model = Model()
+    # load model weights
+    model.load_state_dict(torch.load("models/model.pth", map_location=torch.device("cpu")))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     mean = os.getenv("MEAN_PIXEL")
