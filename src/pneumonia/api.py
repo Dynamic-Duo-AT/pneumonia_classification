@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from contextlib import asynccontextmanager
 
 import torch
@@ -20,6 +21,7 @@ async def lifespan(app: FastAPI):
     model.load_state_dict(torch.load("models/model.pth", map_location=torch.device("cpu")))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
+    # load preprocessing params
     mean = os.getenv("MEAN_PIXEL")
     std = os.getenv("STD_PIXEL")
     size = os.getenv("SIZE")
