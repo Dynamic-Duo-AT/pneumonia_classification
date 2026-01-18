@@ -1,12 +1,34 @@
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 
+import requests
 import torch
 from dotenv import load_dotenv
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from PIL import Image
 
 from pneumonia.model import Model
+
+
+def download_model(gcs_uri: str, local_path: Path) -> None:
+    """
+    Download a model from Google Cloud Storage to a local path.
+
+    Args:
+        gcs_uri: GCS URI of the model (e.g., gs://bucket_name/path/to/model.pth).
+        local_path: Local path to save the downloaded model.
+    """
+    assert gcs_uri.startswith("gs://")
+
+    # Convert gs://bucket/path -> https://storage.googleapis.com/bucket/path
+    http_url = "https://storage.googleapis.com/" + gcs_uri[len("gs://") :]
+
+    local_path.parent.mkdir(parents=True, exist_ok=True)
+
+    r = requests.get(http_url, timeout=60)
+    r.raise_for_status()
+    local_path.write_bytes(r.content)
 
 
 @asynccontextmanager
@@ -17,7 +39,9 @@ async def lifespan(app: FastAPI):
     print("Loading model")
     model = Model()
     # load model weights
-    model.load_state_dict(torch.load("models/model.pth", map_location=torch.device("cpu")))
+    local_model = Path("/tmp/model.pth")
+    download_model("gs://models_pneumonia/model.pth", local_model)
+    model.load_state_dict(torch.load(local_model, map_location=torch.device("cpu")))
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     # load preprocessing params
@@ -64,6 +88,7 @@ async def pred(data: UploadFile = File(...)):
     i_image = i_image.unsqueeze(0).unsqueeze(0).to(device)  # [1,1,size,size]
 
     # pred
+    model.eval()
     with torch.no_grad():
         output = model(i_image)
         sigmoid_output = torch.sigmoid(output)
