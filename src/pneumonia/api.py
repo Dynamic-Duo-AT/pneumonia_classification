@@ -1,13 +1,13 @@
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 import torch
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, UploadFile, BackgroundTasks
+from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from PIL import Image
-from datetime import datetime, timezone
 
 from pneumonia.model import Model
 
@@ -58,27 +58,30 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
+
 def add_to_database(
-        now: str,
-        filename: str,
-        image: Image.Image,
-        pred: str,
-    ) -> None:
+    now: str,
+    filename: str,
+    image: Image.Image,
+    pred: str,
+) -> None:
     """Function to add prediction to database."""
     db_path = Path("db/")
     db_path.mkdir(parents=True, exist_ok=True)
     with open(db_path / "prediction_database.csv", "a") as file:
         file.write(f"{now},{filename},{pred}\n")
-    
+
     # Save the image
     image_path = db_path / "images"
     image_path.mkdir(parents=True, exist_ok=True)
     image.save(image_path / filename)
 
+
 @app.get("/")
 async def read_root():
     """Root endpoint."""
-    return {"Welcome":"To the Pneumonia Detection API"}
+    return {"Welcome": "To the Pneumonia Detection API"}
+
 
 @app.post("/pred/")
 async def pred(data: UploadFile, background_tasks: BackgroundTasks):
@@ -119,7 +122,7 @@ async def pred(data: UploadFile, background_tasks: BackgroundTasks):
 
     now = datetime.now(timezone.utc).isoformat()
     # convert image back to PIL for saving
-    i_image = Image.fromarray((i_image.numpy() * 255).astype('uint8'))
-    background_tasks.add_task(add_to_database,now, data.filename, i_image, preds[0])
-              
+    i_image = Image.fromarray((i_image.numpy() * 255).astype("uint8"))
+    background_tasks.add_task(add_to_database, now, data.filename, i_image, preds[0])
+
     return {"filename": data.filename, "pred": preds[0], "sigmoid": sigmoid_output.item()}

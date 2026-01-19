@@ -1,8 +1,9 @@
+import os
+
 import numpy as np
 import pandas as pd
-import os
-from dotenv import load_dotenv
 import torch
+from dotenv import load_dotenv
 from evidently.metrics import DataDriftTable
 from evidently.report import Report
 from torchvision import datasets, transforms
@@ -19,21 +20,19 @@ db = pd.read_csv(path_db)
 # Load training data
 train_data = datasets.ImageFolder(
     root=path_training_data,
-    transform=transforms.Compose([
-        transforms.Resize((int(os.getenv("SIZE")), int(os.getenv("SIZE")))),
-        transforms.ToTensor()
-    ])
+    transform=transforms.Compose(
+        [transforms.Resize((int(os.getenv("SIZE")), int(os.getenv("SIZE")))), transforms.ToTensor()]
+    ),
 )
 
 # Load database files
 db_images = []
-for filename in db['Filename']:
+for filename in db["Filename"]:
     image_path = os.path.join("db/images/", filename)
     image = datasets.folder.default_loader(image_path)
-    image = transforms.Compose([
-        transforms.Resize((int(os.getenv("SIZE")), int(os.getenv("SIZE")))),
-        transforms.ToTensor()
-    ])(image)
+    image = transforms.Compose(
+        [transforms.Resize((int(os.getenv("SIZE")), int(os.getenv("SIZE")))), transforms.ToTensor()]
+    )(image)
     db_images.append(image)
 
 db_images_tensor = torch.stack(db_images)
@@ -49,6 +48,7 @@ def extract_features(images):
         sharpness = np.mean(np.abs(np.gradient(img)))
         features.append([avg_brightness, contrast, sharpness])
     return np.array(features)
+
 
 train_features = extract_features(train_data)
 db_features = extract_features(db_images_tensor)
