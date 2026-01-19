@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import hydra
@@ -16,6 +17,9 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.ba
 # Hydra config setup
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = REPO_ROOT / "configs" / "experiments"
+
+if "WANDB_API_KEY" in os.environ and os.environ["WANDB_API_KEY"]:
+    wandb.login(key=os.environ["WANDB_API_KEY"], relogin=True)
 
 
 def train(
@@ -41,7 +45,7 @@ def train(
     logger.info(f"{lr=}, {batch_size=}, {epochs=}")
 
     # Initialize wandb
-    wandb.init(
+    run = wandb.init(
         entity="Dynamic_Duo",
         project="Pneumonia-Classification",
         config={"lr": lr, "batch_size": batch_size, "epochs": epochs},
@@ -97,7 +101,18 @@ def train(
 
     # Save the trained model
     logger.info(f"Saving model to {model_path}...")
+    # make sure the directory exists
+    Path(model_path).parent.mkdir(parents=True, exist_ok=True)
     torch.save(model.state_dict(), model_path)
+    artifact = wandb.Artifact(
+        name="pneumonia-classification-model",
+        type="model",
+        description="A model trained to classify pneumonia images",
+        metadata={"accuracy": val_accuracy},
+    )
+
+    artifact.add_file(model_path)
+    run.log_artifact(artifact)
 
 
 # Hydra main function
