@@ -16,4 +16,4 @@ COPY .env ./
 
 EXPOSE $PORT
 
-CMD sh -c "uvicorn pneumonia.api:app --port $PORT --host 0.0.0.0 --workers 1"
+CMD sh -c "uvicorn pneumonia.api_cloud:app --port $PORT --host 0.0.0.0 --workers 1"

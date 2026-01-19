@@ -37,6 +37,7 @@ dependencies = [
     "scikit-learn>=1.8.0",
     "pandas>=2.3.3",
     "gdown>=5.2.1",
+    "google-cloud-storage>=3.8.0",
 ]
 
 [dependency-groups]
