@@ -2721,6 +2721,7 @@ name = "pneumonia"
 version = "0.0.1"
 source = { editable = "." }
 dependencies = [
+    { name = "anyio" },
     { name = "dvc" },
     { name = "dvc-gdrive" },
     { name = "dvc-gs" },
@@ -2759,6 +2760,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "anyio", specifier = ">=4.12.1" },
     { name = "dvc", specifier = ">=3.65.0" },
     { name = "dvc-gdrive", specifier = ">=3.0.1" },
     { name = "dvc-gs", specifier = ">=3.0.2" },
