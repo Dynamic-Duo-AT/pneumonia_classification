@@ -13,7 +13,6 @@ from PIL import Image
 
 from pneumonia.model import Model
 
-
 # Define model and device configuration
 BUCKET_NAME_MODEL = "models_pneumonia"
 MODEL_FILE_NAME = "model.pth"
