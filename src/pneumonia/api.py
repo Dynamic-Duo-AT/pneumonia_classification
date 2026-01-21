@@ -1,11 +1,12 @@
 import os
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
 import torch
 from dotenv import load_dotenv
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import BackgroundTasks, FastAPI, HTTPException, UploadFile
 from PIL import Image
 
 from pneumonia.model import Model
@@ -58,8 +59,32 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
+def add_to_database(
+    now: str,
+    filename: str,
+    image: Image.Image,
+    pred: str,
+) -> None:
+    """Function to add prediction to database."""
+    db_path = Path("db/")
+    db_path.mkdir(parents=True, exist_ok=True)
+    with open(db_path / "prediction_database.csv", "a") as file:
+        file.write(f"{now},{filename},{pred}\n")
+
+    # Save the image
+    image_path = db_path / "images"
+    image_path.mkdir(parents=True, exist_ok=True)
+    image.save(image_path / filename)
+
+
+@app.get("/")
+async def read_root():
+    """Root endpoint."""
+    return {"Welcome": "To the Pneumonia Detection API"}
+
+
 @app.post("/pred/")
-async def pred(data: UploadFile = File(...)):
+async def pred(data: UploadFile, background_tasks: BackgroundTasks):
     """Generate a pred for an image."""
     contents = await data.read()
     if not contents:
@@ -84,14 +109,20 @@ async def pred(data: UploadFile = File(...)):
         )  # [size,size]
 
     # normalize
-    i_image = (i_image - float(mean)) / float(std)  # [size,size]
-    i_image = i_image.unsqueeze(0).unsqueeze(0).to(device)  # [1,1,size,size]
+    i_image_processed = (i_image - float(mean)) / float(std)  # [size,size]
+    i_image_processed = i_image_processed.unsqueeze(0).unsqueeze(0).to(device)  # [1,1,size,size]
 
     # pred
     model.eval()
     with torch.no_grad():
-        output = model(i_image)
+        output = model(i_image_processed)
         sigmoid_output = torch.sigmoid(output)
         preds_binary = (sigmoid_output > 0.5).float()
         preds = ["Pneumonia" if pred.item() == 1.0 else "Normal" for pred in preds_binary]
+
+    now = datetime.now(timezone.utc).isoformat()
+    # convert image back to PIL for saving
+    i_image = Image.fromarray((i_image.numpy() * 255).astype("uint8"))
+    background_tasks.add_task(add_to_database, now, data.filename, i_image, preds[0])
+
     return {"filename": data.filename, "pred": preds[0], "sigmoid": sigmoid_output.item()}
