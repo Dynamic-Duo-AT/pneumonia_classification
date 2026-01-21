@@ -3,7 +3,7 @@ trainer:
   batch_size: 32
   epochs: 1
   model_path: models/model.pth
-  num_workers: 0
+  num_workers: 2
 
 model:
   name: baseline
