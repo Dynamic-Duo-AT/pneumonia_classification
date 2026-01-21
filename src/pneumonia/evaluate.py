@@ -68,7 +68,7 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers:
     # log
     logger.info(f"Test accuracy: {accuracy}")
     wandb.log({"test/accuracy": accuracy})
-    
+
     # so you can view without looking at logs
     print(f"Test accuracy: {accuracy}")
 
