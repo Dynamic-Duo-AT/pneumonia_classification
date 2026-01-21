@@ -9,4 +9,4 @@ export DVC_CACHE_DIR="${DVC_CACHE_DIR:-/tmp/dvc-cache}"
 uv run dvc pull
 
 echo "Starting training..."
-exec uv run inv exp1-train "$@"
+exec uv run inv exp1-workers "$@"

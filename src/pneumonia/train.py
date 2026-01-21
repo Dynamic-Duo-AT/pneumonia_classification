@@ -12,6 +12,9 @@ from pneumonia.model import Model
 
 # Training script. Add description later.
 
+# set seed
+torch.manual_seed(42)
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
 # Hydra config setup
@@ -53,6 +56,10 @@ def train(
         config={"lr": lr, "batch_size": batch_size, "epochs": epochs},
     )
 
+    # save run id to a file
+    with open("wandb_run_id.txt", "w") as f:
+        f.write(run.id)
+
     # model selection
     if model == "baseline":
         model = Model().to(DEVICE)
@@ -91,14 +98,20 @@ def train(
         # Validation loop
         model.eval()
         with torch.no_grad():
+            val_loss = 0.0
+            correct = 0
+            total = 0
             for img, target in dataloaders["val"]:
                 # processing batch
                 img, target = img.to(DEVICE), target.to(DEVICE).float()
                 y_pred = model(img)
                 val_loss = loss_fn(y_pred, target)
                 val_preds_binary = (torch.sigmoid(y_pred) > 0.5).float()
-                val_accuracy = (val_preds_binary == target).float().mean().item()
-                wandb.log({"val_loss": val_loss.item(), "val_accuracy": val_accuracy})
+                correct += (val_preds_binary == target).float().sum().item()
+                total += target.numel()
+
+            val_accuracy = correct / total if total > 0 else 0.0
+            wandb.log({"val_loss": val_loss.item(), "val_accuracy": val_accuracy})
     logger.info("Training completed.")
 
     # Save the trained model

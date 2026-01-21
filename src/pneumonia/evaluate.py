@@ -2,6 +2,7 @@ from pathlib import Path
 
 import hydra
 import torch
+import wandb
 from loguru import logger
 from omegaconf import DictConfig, OmegaConf
 
@@ -29,6 +30,7 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers:
     Returns:
         Accuracy on the test set.
     """
+    # Logging
     logger.info("Evaluating...")
     logger.info(f"Checkpoint: {model_checkpoint}")
     logger.info(f"Model type: {model_type}")
@@ -65,6 +67,8 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers:
 
     # log
     logger.info(f"Test accuracy: {accuracy}")
+    wandb.log({"test/accuracy": accuracy})
+    
     # so you can view without looking at logs
     print(f"Test accuracy: {accuracy}")
 
@@ -86,6 +90,15 @@ def main(cfg: DictConfig) -> None:
         format="{time} {level} {message}",
     )
     logger.info("Config:\n", OmegaConf.to_yaml(cfg))
+
+    # check if wandb_run_id.txt exists to resume the same run
+    path = Path("wandb_run_id.txt")
+    if path.exists():
+        with open(path, "r") as f:
+            run_id = f.read().strip()
+        wandb.init(project="pneumonia-classification", id=run_id, resume="must")
+    else:
+        wandb.init(project="pneumonia-classification")
 
     # reuse the SAME config fields you used in training
     evaluate(

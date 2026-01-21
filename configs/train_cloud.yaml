@@ -6,4 +6,4 @@ workerPoolSpecs:
         imageUri: europe-west1-docker.pkg.dev/pneumonia-484312/artifact-container-docker/trainer:latest
         env:
         - name: WANDB_API_KEY
-          value: <KEY>
+          value: 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
