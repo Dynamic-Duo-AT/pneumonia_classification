@@ -34,7 +34,7 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers:
     logger.info(f"Model type: {model_type}")
     logger.info(f"Data dir: {data_dir}")
     logger.info(f"Number of workers: {num_workers}")
-    logger.info(f"Batch size: {batch_size}") 
+    logger.info(f"Batch size: {batch_size}")
 
     # Load model
     if model_type == "baseline":

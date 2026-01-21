@@ -192,7 +192,7 @@ class XRayDataset(Dataset):
 
 
 def create_dataloaders(
-    data_path: Path, num_workers: int ,batch_size: int = typer.Option(32, help="Batch size for DataLoaders")
+    data_path: Path, num_workers: int, batch_size: int = typer.Option(32, help="Batch size for DataLoaders")
 ) -> dict[str, DataLoader]:
     """
     Create DataLoaders for train, test, and val splits.
