@@ -3,6 +3,8 @@ wandb/
 outputs/
 models/
 
+# all html files
+*.html
 
 # test cache
 manual_test/
