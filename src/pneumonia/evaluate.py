@@ -15,7 +15,7 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = REPO_ROOT / "configs" / "experiments"
 
 
-def evaluate(model_checkpoint: str, model_type: str, data_dir: str, batch_size: int = 32) -> None:
+def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers: int, batch_size: int = 32) -> None:
     """
     Evaluate a trained model.
 
@@ -23,6 +23,8 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, batch_size: 
         model_checkpoint: Path to the model checkpoint.
         model_type: Type of the model (e.g., 'baseline').
         data_dir: Directory containing the data.
+        num_workers: Number of worker threads for data loading.
+        batch_size: Batch size for evaluation.
 
     Returns:
         Accuracy on the test set.
@@ -31,6 +33,8 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, batch_size: 
     logger.info(f"Checkpoint: {model_checkpoint}")
     logger.info(f"Model type: {model_type}")
     logger.info(f"Data dir: {data_dir}")
+    logger.info(f"Number of workers: {num_workers}")
+    logger.info(f"Batch size: {batch_size}") 
 
     # Load model
     if model_type == "baseline":
@@ -41,7 +45,7 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, batch_size: 
         raise NotImplementedError("Only 'baseline' model type is supported in this script.")
 
     # Create dataloaders
-    data_loaders = create_dataloaders(data_dir, batch_size=batch_size)
+    data_loaders = create_dataloaders(data_dir, num_workers=num_workers, batch_size=batch_size)
     test_dataloader = data_loaders["test"]
 
     model.eval()
@@ -88,6 +92,7 @@ def main(cfg: DictConfig) -> None:
         model_checkpoint=cfg.trainer.model_path,
         model_type=cfg.model.name,
         data_dir=cfg.data.path,
+        num_workers=cfg.trainer.num_workers,
         batch_size=cfg.trainer.batch_size,
     )
 

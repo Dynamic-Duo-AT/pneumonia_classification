@@ -26,6 +26,7 @@ def train(
     lr: float = 0.001,
     batch_size: int = 32,
     epochs: int = 1,
+    num_workers: int = 1,
     model_path: str = "models/model.pth",
     model: str = "baseline",
     data_path: str = "data/",
@@ -40,6 +41,7 @@ def train(
         model_path: Path to save the trained model.
         model: Model architecture to use.
         data_path: Path to the dataset.
+        num_workers: Number of worker threads for data loading.
     """
     logger.info("Training started...")
     logger.info(f"{lr=}, {batch_size=}, {epochs=}")
@@ -61,7 +63,7 @@ def train(
 
     # Creating three dataloaders for train, val and test sets
     logger.info("Creating dataloaders...")
-    dataloaders = create_dataloaders(data_path, batch_size=batch_size)
+    dataloaders = create_dataloaders(data_path, num_workers=num_workers, batch_size=batch_size)
 
     # defining loss function and optimizer
     loss_fn = torch.nn.BCEWithLogitsLoss()
@@ -138,6 +140,7 @@ def main(cfg: DictConfig) -> None:
         lr=cfg.trainer.lr,
         batch_size=cfg.trainer.batch_size,
         epochs=cfg.trainer.epochs,
+        num_workers=cfg.trainer.num_workers,
         model_path=cfg.trainer.model_path,
         model=cfg.model.name,
         data_path=cfg.data.path,
