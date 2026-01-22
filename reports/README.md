@@ -349,6 +349,10 @@ To reproduce an experiment introduced in a potential report, one only needs the 
 >
 > Answer:
 
+![my_image](figures/14_a.png)
+
+![my_image](figures/14_b.png)
+
 For experiment logging we used Weights and Biases. As seen in the first screenshot, we tracked validation accuracy and loss as well as training loss and accuracy throughout training. These metrics are essential for understanding how the model learns over time. Training loss and accuracy indicate how well the model fits the training data, and can be used as a quick sanity check (do we actually learn anything?). While validation loss and accuracy show how well the model generalizes to unseen data, they can also be used to investigate if the model overfits. If the model does overfit, we want to know at which epoch we begin to see the overfitting. To summarize we can use the training and validation metrics to investigate behaviours such as learning plateaus or overfitting. 
 
 We recognise that this image is not ideal as it shows results only related to our baseline model, which was trained for one epoch in most of the runs, as it was already overfitting to the training data. 
@@ -435,7 +439,9 @@ We also used the compute engine backed infrastructure when deploying our inferen
 >
 > Answer:
 
---- question 19 fill here ---
+![my_image](figures/19_a.png)
+
+![my_image](figures/19_b.png)
 
 ### Question 20
 
@@ -444,7 +450,7 @@ We also used the compute engine backed infrastructure when deploying our inferen
 >
 > Answer:
 
---- question 20 fill here ---
+![my_image](figures/20_a.png)
 
 ### Question 21
 
@@ -453,7 +459,9 @@ We also used the compute engine backed infrastructure when deploying our inferen
 >
 > Answer:
 
---- question 21 fill here ---
+![my_image](figures/21_a.png)
+
+![my_image](figures/21_b.png)
 
 ### Question 22
 
@@ -605,6 +613,8 @@ We implemented and deployed a data drift detection API which generated an eviden
 > *Whenever we commit code and push to GitHub, it auto triggers ... and ... . From there the diagram shows ...*
 >
 > Answer:
+
+![my_image](figures/29_a.png)
 
 The starting point is us as developers, we have the code and can run local experiments using Hydra. The experiments are then logged using Weights and Biases and the model is stored in the artifact registry. We can also activate cloud training which then trains the model using vertex AI and uses the latest docker image in the Google cloud artifact registry. If we are satisfied with our model, we can upload it to the model storage bucket.
 The developer can also push new code which then starts CI in GitHub where tests are being run for functionalities in the code but also for formatting and code quality. Meanwhile a GCP trigger triggers cloud build to create two new docker images; one for the inference API and one for training pipeline stored in GCP artifact registry. As mentioned the training can be activated by the developer in vertex AI using the training pipeline docker image. 
