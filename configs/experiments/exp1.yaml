@@ -5,6 +5,9 @@ trainer:
   model_path: models/model.pth
   num_workers: 0
 
+evaluate:
+  contrast: False
+
 model:
   name: baseline
 
