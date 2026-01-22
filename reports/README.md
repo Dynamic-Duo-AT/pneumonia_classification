@@ -97,7 +97,7 @@ will check the repositories and the code to verify your answers.
 
 ### Week 3
 
-* [ ] Check how robust your model is towards data drifting (M27)
+* [X] Check how robust your model is towards data drifting (M27)
 * [X] Setup collection of input-output data from your deployed application (M27)
 * [X] Deploy to the cloud a drift detection API (M27)
 * [ ] Instrument your API with a couple of system metrics (M28)
@@ -314,7 +314,8 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 12 fill here ---
+To run experiments, we used .yaml configuration files in combination with Hydra. This gave us an overview of experiments, as it enabled us to keep all variable values separate from the code. Furthermore, the configuration files also help with reproducibility.
+To run an experiment, we either used one of the specified invoke tasks or used the following command: uv run python src/pneumonia/train.py --config-name exp1_workers
 
 ### Question 13
 
@@ -329,7 +330,9 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 13 fill here ---
+As mentioned, to configure experiments, we used YAML configuration files in combination with Hydra to store our experiment data configuration, such as learning rate, batch size, epochs, model type, etc. As all the experiment parameters were stored in YAML configuration files, no configuration information was lost when running experiments, hereby making the exact result reproducible (also due to a fixed random seed).
+In addition to the configuration files both Hydra and Weights and Biases are logging the experiment ensuring that the user is able to have access to the logs.
+To reproduce an experiment introduced in a potential report, one only needs the same code version, the corresponding configuration file, and the locked dependencies, and then rerun the training command with the same config name.
 
 ### Question 14
 
@@ -346,7 +349,12 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 14 fill here ---
+For experiment logging we used Weights and Biases. As seen in the first screenshot, we tracked validation accuracy and loss as well as training loss and accuracy throughout training. These metrics are essential for understanding how the model learns over time. Training loss and accuracy indicate how well the model fits the training data, and can be used as a quick sanity check (do we actually learn anything?). While validation loss and accuracy show how well the model generalizes to unseen data, they can also be used to investigate if the model overfits. If the model does overfit, we want to know at which epoch we begin to see the overfitting. To summarize we can use the training and validation metrics to investigate behaviours such as learning plateaus or overfitting. 
+
+We recognise that this image is not ideal as it shows results only related to our baseline model, which was trained for one epoch in most of the runs, as it was already overfitting to the training data. 
+
+The second screenshot shows that we also logged the overall experiment hyperparameters and the test accuracy, which helped us quickly identify what changed in between results and how this influenced our final and intermediate results.
+
 
 ### Question 15
 
@@ -361,7 +369,14 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 15 fill here ---
+We used docker for multiple applications; to containerize our training and evaluation pipelines as well as containing this pipeline and storing it in the artifact registry in the cloud which enabled us to run the training in the cloud. Furthermore, we also developed a docker image for our API that did inference this was useful when we wanted to deploy our app, as it allowed us to use cloud run to deploy our docker image of the app.
+
+
+To run the training docker image: "docker run -it --name experiment1_train train:latest"
+
+
+"-it" is important as it is automatically trying to run Weights and Biases, thereby you are able to provide a key or disable it for this run. 
+
 
 ### Question 16
 
@@ -376,7 +391,9 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 16 fill here ---
+In the development phase of the different code features, we actively used the built-in debugger in vs code. We used the debugger in combination with inline breakpoints to precisely control which code snippets were executed. This allowed us to inspect tensor shapes, and other relevant variables during execution, which made it easier to identify and fix errors early in the development process instead of executing one big chunk of code which might have multiple errors. Overall reducing the time spent debugging.
+
+We did not profile the code which would most likely help identify where we could optimize the code for shorter running time. This is very relevant when we are training in the cloud as we pay per minute that we train the model. 
 
 ## Working in the cloud
 
@@ -393,7 +410,7 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 17 fill here ---
+We used Cloud build to build docker images in the cloud. Triggers were used to build docker images as CI. Artifact registry was used to store the docker containers with version control. Vertex AI was used to train the model in the cloud using the train docker image stored in the Artifact registry. Storage bucket was used to store our data, data from the inference API and a version of our model. Cloud run was used to deploy our inference API and a drift detection API. 
 
 ### Question 18
 
@@ -408,7 +425,8 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 18 fill here ---
+We used the compute engine as the underlying infrastructure for both training and deployment. The compute engine was utilized to run our training and evaluation of our model in vertex AI where the pipeline was executed inside a Docker container. Thereby, we did not manage this ourselves because vertex AI ran the training job on the compute engine VMs. For the vertex AI training we used "n1-highmem-2" which enabled us to do distributed dataloading. 
+We also used the compute engine backed infrastructure when deploying our inference API using cloud run. Again, the vm was not managed by us but was automatically managed by the platform. 
 
 ### Question 19
 
@@ -450,7 +468,13 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 22 fill here ---
+We did manage to train our model using vertex AI. We did this by having a trigger, so each time we pushed to the main branch, cloud builder created a docker image containing a full training pipeline. The docker image had access to the DVC files and used that to pull the data down when activated. 
+
+We then used the "configs\train_cloud.yaml" file to specify the machine and inserted our Weights and Biases API key to ensure that everything was logged and the model was registered in the Weights and Biases artifacts. To make it train in the cloud we ran the following command: 
+gcloud ai custom-jobs create \
+    --region=europe-west1 \
+    --display-name=test-run \
+    --config=configs/train_cloud.yaml
 
 ## Deployment
 
@@ -467,7 +491,11 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 23 fill here ---
+We used FastAPI to create an API for our model. We used lifespan to make sure the model was created and the model weights were downloaded from our cloud storage bucket. Furthermore, global variables used to normalize the input data were initialized. Once everything was initialized it was ready to predict on newly uploaded data. 
+
+The "/pred/" takes an image file and processes it. The image was grayscale, resized and normalized before being inserted into the model. The model would then provide the score and the predicted label (does the image contain an image of a person with Pneumonia?). Meanwhile a background process would take the data and the model result and store it in a storage bucket.
+
+The "/" simply displays a greetings message.
 
 ### Question 24
 
@@ -483,7 +511,14 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 24 fill here ---
+We managed to deploy our API in both cloud and locally. To deploy our API locally we used uvicorn with this exact command:
+uv run uvicorn src.pneumonia.api:app --reload --host 0.0.0.0 --port 8080
+
+To deploy it in the cloud we build a docker image containing our app. This was built in cloud build using a trigger every time there was a push to main. The image was stored in the artifact registry and could later be deployed using cloud run. The docker image ran a similar looking uvicorn command but in the dockerfile $port is exposed and given in the port argument.
+
+To invoke the service a user would have to use the following command (note this was for the local deployed model):
+curl -X POST http://127.0.0.1:8080/pred/ -H "accept: application/json" -F "data=@data/raw/train/NORMAL/IM-0117-0001.jpeg"
+
 
 ### Question 25
 
@@ -498,7 +533,10 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 25 fill here ---
+We did do unit testing for our API. Similar to the other unit test we tested if the API responded how we intended for the different functionalities. We used "fastapi.testclient.TestClient" to test the api.
+
+We performed load testing of our API with the Locust load testing tool. This was done by creating the file locustfile.py, which was placed in the root directory of the repository. This file contains a class that describes the behaviour of simulated users by defining different tasks. We defined two tasks with the second task weighted ten times higher than the first to simulate a higher request frequency. Additionally, we introduced a delay between tasks executions by defining wait_time=between(1,2). 
+The results of the load tests showed that our API could handle up to just below 1000 users without any failures. However, just before the number of users reached 1000, the service began to fail with the number of successful requests becoming equal to the number of failed requests.
 
 ### Question 26
 
@@ -513,7 +551,8 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 26 fill here ---
+We implemented monitoring by using evidently. Our project revolves around images so we created a function that extracts image features such as the average pixel value, the contrast or sharpness of the image. We extracted these features from the training data and from the database of our inference model and the evidently report then did a statistical test for potential data drift.
+We furthermore deployed an API locally as well as in the cloud that created the evidently reports. This is very important when there is data drift as the performance of the model might also decrease. To ensure a great performance, one might have to retrain the model using this newly collected inference data where the drift is shown.
 
 ## Overall discussion of project
 
@@ -532,7 +571,9 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 27 fill here ---
+We used around 10 dollars, because we only checked if our applications were able to run in the cloud. The biggest cost came from the cloud run application. We hypothesize that the main part of the cloud run cost came from the initial deployment of the APIs. This is due to that on days where we did not deploy but only called the APIs, we observed that the cloud run application was significantly cheaper. The reason for why we have kept the cost that low is because our model could easily be trained locally, thereby we only trained it using Vertex AI as a proof of concept and to get familiar with the process. Furthermore, we also performed API load testing using the locally deployed API, thereby we kept the calls to our cloud deployed API to a minimum. 
+
+Overall we would say that it was a good experience to work in the cloud. The cloud has a lot of great functionalities like deployment. It also provides a good place to store more or less full projects, giving an easy overview and versioning of artifacts and other elements.
 
 ### Question 28
 
@@ -548,7 +589,7 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 28 fill here ---
+We implemented and deployed a data drift detection API which generated an evidently report. Furthermore we investigated how the model behaved to drifted data simply by comparing accuracies. 
 
 ### Question 29
 
@@ -565,7 +606,9 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 29 fill here ---
+The starting point is us as developers, we have the code and can run local experiments using Hydra. The experiments are then logged using Weights and Biases and the model is stored in the artifact registry. We can also activate cloud training which then trains the model using vertex AI and uses the latest docker image in the Google cloud artifact registry. If we are satisfied with our model, we can upload it to the model storage bucket.
+The developer can also push new code which then starts CI in GitHub where tests are being run for functionalities in the code but also for formatting and code quality. Meanwhile a GCP trigger triggers cloud build to create two new docker images; one for the inference API and one for training pipeline stored in GCP artifact registry. As mentioned the training can be activated by the developer in vertex AI using the training pipeline docker image. 
+The inference API and a drift detection API is deployed using Google cloud run. It gets the latest model in the model storage bucket. A user can then call the API to get a prediction on an image. Furthermore, the user can pull the latest docker images from the artifact registry and clone the code from the GitHub repository (note the user can also dvc pull the data afterwards). Furthermore, the developer can call drift report API to get an evidently report. Lastly, the developer can also update the data in the storage bucket.
 
 ### Question 30
 
@@ -579,7 +622,13 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 >
 > Answer:
 
---- question 30 fill here ---
+We had a lot of issues with getting the data from the cloud into our docker images and pulling and pushing the latest models for our inference API. This was mainly due to the fact that we tried to implement this before we had the last exercise days. Once we had some examples of how to access the data, we overcame this issue.
+
+We were also stuck for a while when deploying the model. This was because we did not realize that the deployment failed due to limited memory. The large time consumption was mostly due to the fact that each attempt took a while, and initially we thought this had something to do with the docker image. 
+
+We also found it challenging to keep a good overview of all the new tools introduced in regards to MLOps. This was a tall task and we sometimes were a bit stuck because we had to comprehend the project in regards to all of these new elements. This might also be because some tools could replace others such as Hydra replacing Typer in our project. However, we overcame this by simply getting more familiar with the MLOps framework.
+
+With the introduction of distributed dataloading we also met new challenges when it came to memory in local docker images. We solved this by trouble shooting with an AI to understand how we could allow for more memory when running the image.
 
 ### Question 31
 
@@ -597,4 +646,11 @@ https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tes
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
+Overall, we contributed equally and collaborated on most parts of the project. Below, we have highlighted the parts where one did the initial development and the other reviewed.
+
+Student s194688 contributed with setting up the initial project with the cookiecutter template, implementing the simple model and the train script. 
+Student s214598 contributed with developing the initial dataloader, implementing the evaluate script as well as setting up the project on Google Cloud.
+
+Both members contributed to tasks such as updating project progress, Ruff formattings, accepting/rejecting dependabot pull requests, writing the project description and filling out the report template.
+
+ChatGPT was used to help understand error messages when debugging and GitHub copilot was used as an assistance for developing code.
