@@ -69,8 +69,8 @@ class XRayDataset(Dataset):
 
         mean, std = self._compute_mean_std(train_files)
 
-        logger.info("Grayscale mean:", float(mean))
-        logger.info("Grayscale std :", float(std))
+        logger.info(f"Grayscale mean: {float(mean)}")
+        logger.info(f"Grayscale std : {float(std)}")
 
         for split in ("train", "test", "val"):
             split_files = self._list_jpegs(self.unprocessed_path / split)
