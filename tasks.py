@@ -9,18 +9,6 @@ PYTHON_VERSION = "3.12"
 
 # Project commands
 @task
-def preprocess_data(ctx: Context) -> None:
-    """Preprocess data."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/data.py data/raw data/processed", echo=True, pty=not WINDOWS)
-
-
-@task
-def train(ctx: Context) -> None:
-    """Train model."""
-    ctx.run(f"uv run src/{PROJECT_NAME}/train.py", echo=True, pty=not WINDOWS)
-
-
-@task
 def exp1_workers(ctx: Context) -> None:
     """Run experiment exp1"""
     ctx.run("uv run python -m pneumonia.train --config-name exp1_workers", echo=True, pty=not WINDOWS)
@@ -45,12 +33,16 @@ def exp1_test(ctx: Context) -> None:
     """Run experiment exp1"""
     ctx.run("uv run python -m pneumonia.evaluate --config-name exp1", echo=True, pty=not WINDOWS)
 
+@task
+def train(ctx: Context, config_name: str) -> None:
+    """Run training with specified config."""
+    ctx.run(f"uv run python -m pneumonia.train --config-name {config_name}", echo=True, pty=not WINDOWS)
+
 
 @task
-def test(ctx: Context) -> None:
-    """Run tests."""
-    ctx.run("uv run coverage run -m pytest tests/", echo=True, pty=not WINDOWS)
-    ctx.run("uv run coverage report -m -i", echo=True, pty=not WINDOWS)
+def evaluate(ctx: Context, config_name: str) -> None:
+    """Run evaluation with specified config."""
+    ctx.run(f"uv run python -m pneumonia.evaluate --config-name {config_name}", echo=True, pty=not WINDOWS)
 
 
 @task
