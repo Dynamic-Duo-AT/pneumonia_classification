@@ -91,7 +91,7 @@ will check the repositories and the code to verify your answers.
 * [X] Create a FastAPI application that can do inference using your model (M22)
 * [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
 * [X] Write API tests for your application and setup continues integration for these (M24)
-* [ ] Load test your application (M24)
+* [X] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 * [ ] Create a frontend for your API (M26)
 
@@ -103,7 +103,7 @@ will check the repositories and the code to verify your answers.
 * [ ] Instrument your API with a couple of system metrics (M28)
 * [ ] Setup cloud monitoring of your instrumented application (M28)
 * [ ] Create one or more alert systems in GCP to alert you if your app is not behaving correctly (M28)
-* [ ] If applicable, optimize the performance of your data loading using distributed data loading (M29)
+* [X] If applicable, optimize the performance of your data loading using distributed data loading (M29)
 * [ ] If applicable, optimize the performance of your training pipeline by using distributed training (M30)
 * [ ] Play around with quantization, compilation and pruning for you trained models to increase inference speed (M31)
 
@@ -123,7 +123,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 1 fill here ---
+17
 
 ### Question 2
 > **Enter the study number for each member in the group**
@@ -134,7 +134,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 2 fill here ---
+s194688, s214598
 
 ### Question 3
 > **Did you end up using any open-source frameworks/packages not covered in the course during your project? If so**
@@ -148,7 +148,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 3 fill here ---
+No, we only used frameworks/packages covered in the course.
 
 ## Coding environment
 
@@ -168,7 +168,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 4 fill here ---
+For managing our local environment, we used the UV package manager. Dependency management was handled with the pyproject.toml file, which contains all our intended dependencies together with some additional metadata. To add a dependency to our project, the command "uv add package" was used, which installed the specified package and added it to the pyproject.toml and uv.lock. We also did "uv add package==x.y.z" to install a specific version of a package. A dependency could also be manually added by typing in the name of a new package in the pyproject.toml file with some version dependency, followed by running the command "uv sync", which then installs the newly added package. A new team member who has installed UV can get a complete copy of our environment by running the command "uv sync" after cloning the repository with the root of the repository as the working directory. This will create a virtual environment with the package versions defined in the uv.lock file.
 
 ### Question 5
 
@@ -184,7 +184,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 5 fill here ---
+We initialised our project with the provided "mlops_template" using cookiecutter and chose the "advanced" project structure. This template uses a structure designed to support MLOps and helps to ensure that contributors and others can find the code that they are looking for. For example, the code for the model is located in a specific place. The main code is located in src/, containing scripts for model definition, data handling, training and evaluation procedures, visualisation methods and the api. Separate folders for documentation, testing, reporting, Docker and configuration are kept at the root level.
+
+We added a few files to the src to get some functionalities for datadrift and another API file, as we wanted to ensure we were able to do the datadrift report both locally and in the cloud. 
 
 ### Question 6
 
@@ -199,7 +201,10 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 6 fill here ---
+We used Ruff for linting and formatting. Here we specified line length of 120 to ensure that the lines did not continue out of the screen. "E" was used as a styling rule, solving white space issues and indentation problems. "F" checked that we used the imports and did not have variables that were assigned but never used. "I" ensured a sorted and well-organised import order. In each function, we expressively stated what Type is expected and what Type is returned. Furthermore, we provided a high-level description of the functions with a detailed listing of returns and Args. 
+
+This matters a lot as it makes the code more readable for ourselves and others. It also becomes easier to maintain. These practices make it easy for other developers to understand, use and further develop on the codebase, overall reducing errors.
+
 
 ## Version control
 
@@ -218,7 +223,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 7 fill here ---
+In total, we implemented 6 tests. One extensive test for checking the data using a dummy dataset to ensure that it behaved as expected, everything from the initialisation to the normalisation and storing of data. Two tests for the model: one checking the initialisation and another the forward pass. Lastly, three tests for our API to check whether the functions worked as intended. We also implemented a load test for the API. 
 
 ### Question 8
 
@@ -233,7 +238,8 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 8 fill here ---
+The total code coverage of the code is X%. We are not close to achieving 100%, but it is also reflected by the fact that we do have two very similar API scripts where only one is tested. Furthermore, we focused on testing the model rather than training and evaluation, which are longer snippets of code. 
+Even if our code had a code coverage of nearly 100%, we would not expect the code to be error-free. 100% code coverage means that every single line of code gets executed when running all tests. This does not guarantee that the outputs are correct or meaningful. Additionally, we test our components separately with the use of unit tests and errors might occur during interactions between these components when running the full model. Lastly, one could have potential mathematical problems in loss functions, which might not be checked in a unit test.
 
 ### Question 9
 
@@ -248,7 +254,7 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 9 fill here ---
+When we developed a new feature for our project and wanted to push code to our GitHub repository, we pushed to a separate feature branch. When this feature was complete, and no conflicts occurred in GitHub, we merged the feature branch into the main branch, followed by deleting the feature branch. This workflow fits well for us, as separate people could continue the development of a feature. We did not make use of pull requests except for the dependaBot. However, pull requests can improve version control by allowing team members to comment on the code before it is merged into the main branch. In this way, pull requests can help reduce the risk of introducing errors into the main branch. By doing pull request contributors can also comment on the overall code readability, ensuring that the code is clear before merging into main.
 
 ### Question 10
 
@@ -263,7 +269,9 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 10 fill here ---
+We used DVC for managing data in our project in combination with a cloud storage bucket. It allowed us to update the dataset and still have easy access to earlier versions of the data, similar to GitHub. In our project, we extended the validation set so DVC allowed for easy update of our storage bucket, so the other group member could pull the update of the dataset without running a script. 
+
+Furthermore, it was also beneficial for the Docker images we built in the cloud. Since the dataset itself was not stored in the GitHub repository, we could use dvc pull when running a Docker image to retrieve the correct version of the data. This was important when we set up triggers for automatic creation of Docker images using Cloud Build, as it did not have access to the local data storage. 
 
 ### Question 11
 
@@ -280,7 +288,14 @@ will check the repositories and the code to verify your answers.
 >
 > Answer:
 
---- question 11 fill here ---
+We used 4 separate files for setting up continuous integration in our repository. One file was used to do linting on our code. Here, it would use the ruff check and format to investigate our formatting and code quality, ensuring that these qualities were met in every file. We also have a file that runs all of our unit tests, which checks if we have broken working components with the newest push, which helps us quickly identify bugs. Lastly, we have two files that are triggered from the cloud that built two separate Docker images for our Artifact Registry in the cloud. One builds an image that can do training/evaluating, and another creates a new version of our inference app Docker image. 
+
+We do tests for multiple operating systems, namely "ubuntu-latest", "windows-latest", "macos-latest", and for Python versions 3.11 and 3.12. This is important as we want the results to be reproducible on any device and ensure that the code behaves consistently regardless of operating system or Python version.
+
+We do use Caching, which stores the uv package download directory between the continuous integration runs. This avoids redownloading of dependencies on every execution, which results in significantly faster testing of the code after the code is pushed to main.
+
+Here is a link to a GitHub action workflow:
+https://github.com/Dynamic-Duo-AT/pneumonia_classification/actions/workflows/tests.yaml
 
 ## Running code and tracking experiments
 
