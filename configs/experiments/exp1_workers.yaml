@@ -1,7 +1,7 @@
 trainer:
-  lr: 0.001
+  lr: 0.00001
   batch_size: 32
-  epochs: 1
+  epochs: 5
   model_path: models/model.pth
   num_workers: 2
 
