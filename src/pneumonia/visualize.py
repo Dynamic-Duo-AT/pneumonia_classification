@@ -1,10 +1,11 @@
 import os
+
 import matplotlib.pyplot as plt
+import torch
 from dotenv import load_dotenv
 
-import torch
-
 load_dotenv()
+
 
 def plot_cotrast_image(path: str):
     image = torch.load(path)
@@ -35,6 +36,7 @@ def plot_cotrast_image(path: str):
     plt.tight_layout()
     plt.savefig("contrast_image_comparison.png")
     plt.show()
+
 
 if __name__ == "__main__":
     plot_cotrast_image("data/processed/train/IM-0122-0001.pt")

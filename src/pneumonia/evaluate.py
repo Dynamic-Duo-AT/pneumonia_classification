@@ -16,7 +16,14 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 CONFIG_DIR = REPO_ROOT / "configs" / "experiments"
 
 
-def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers: int, batch_size: int = 32, contrast: bool = False) -> None:
+def evaluate(
+    model_checkpoint: str,
+    model_type: str,
+    data_dir: str,
+    num_workers: int,
+    batch_size: int = 32,
+    contrast: bool = False,
+) -> None:
     """
     Evaluate a trained model.
 
@@ -60,9 +67,9 @@ def evaluate(model_checkpoint: str, model_type: str, data_dir: str, num_workers:
             if contrast:
                 logger.info("Using contrast images for evaluation")
                 # increase contrast in the normalized image
-                img = img * 3.5  
+                img = img * 3.5
 
-            # forward pass    
+            # forward pass
             y_pred = model(img)
             y_pred_binary = (torch.sigmoid(y_pred) > 0.5).float()
             correct += (y_pred_binary == target).float().sum().item()
@@ -113,7 +120,7 @@ def main(cfg: DictConfig) -> None:
         data_dir=cfg.data.path,
         num_workers=cfg.trainer.num_workers,
         batch_size=cfg.trainer.batch_size,
-        contrast=bool(cfg.evaluate.contrast)
+        contrast=bool(cfg.evaluate.contrast),
     )
 
 

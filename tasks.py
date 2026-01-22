@@ -33,6 +33,7 @@ def exp1_test(ctx: Context) -> None:
     """Run experiment exp1"""
     ctx.run("uv run python -m pneumonia.evaluate --config-name exp1", echo=True, pty=not WINDOWS)
 
+
 @task
 def train(ctx: Context, config_name: str) -> None:
     """Run training with specified config."""
