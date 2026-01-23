@@ -33,7 +33,7 @@ dependencies = [
     "dvc>=3.65.0",
     "dvc-gdrive>=3.0.1",
     "python-multipart>=0.0.21",
-    "evidently==0.4.28",
+    "evidently==0.7.20",
     "scikit-learn>=1.8.0",
     "pandas>=2.3.3",
     "gdown>=5.2.1",

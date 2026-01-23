@@ -776,6 +776,18 @@ wheels = [
 ]
 
 [[package]]
+name = "deprecation"
+version = "2.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "packaging" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/5a/d3/8ae2869247df154b64c1884d7346d412fed0c49df84db635aab2d1c40e62/deprecation-2.1.0.tar.gz", hash = "sha256:72b3bde64e5d778694b0cf68178aed03d15e15477116add3fb773e581f9518ff", size = 173788, upload-time = "2020-04-20T14:23:38.738Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/02/c3/253a89ee03fc9b9682f1541728eb66db7db22148cd94f89ab22528cd1e1b/deprecation-2.1.0-py2.py3-none-any.whl", hash = "sha256:a10811591210e1fb0e768a8c25517cabeabcba6f0bf96564f8ff45189f90b14a", size = 11178, upload-time = "2020-04-20T14:23:36.581Z" },
+]
+
+[[package]]
 name = "dictdiffer"
 version = "0.9.0"
 source = { registry = "https://pypi.org/simple" }
@@ -1037,16 +1049,19 @@ wheels = [
 
 [[package]]
 name = "evidently"
-version = "0.4.28"
+version = "0.7.20"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "certifi" },
+    { name = "cryptography" },
+    { name = "deprecation" },
     { name = "dynaconf" },
     { name = "fsspec" },
     { name = "iterative-telemetry" },
     { name = "litestar" },
     { name = "nltk" },
     { name = "numpy" },
+    { name = "opentelemetry-proto" },
     { name = "pandas", extra = ["parquet"] },
     { name = "plotly" },
     { name = "pydantic" },
@@ -1060,12 +1075,13 @@ dependencies = [
     { name = "typing-inspect" },
     { name = "ujson" },
     { name = "urllib3" },
+    { name = "uuid6" },
     { name = "uvicorn", extra = ["standard"] },
     { name = "watchdog" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/94/7c/c985a97813314abbd4c5c279939456da3b53d8183affe56aee808d6b4bcb/evidently-0.4.28.tar.gz", hash = "sha256:cad0bda78ee63abdc978998d3c03f7d8fe8a5357d7575b840465543f7e40fd62", size = 2259433, upload-time = "2024-06-20T11:43:25.997Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7b/79/b04e7a51b31611e30a0704babd5381bfd0c5face6e33a839bbb603d7362d/evidently-0.7.20.tar.gz", hash = "sha256:726d6ebdc4e29a94a27a2ee28546e076055aebcdb9d43b2e5126ae23483b8fbd", size = 7674556, upload-time = "2026-01-09T11:54:16.159Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/63/82/fb21e28e8999e7386f1ba8418d4c4c8eae2466860f3a92f226c9ff9b6654/evidently-0.4.28-py3-none-any.whl", hash = "sha256:35099a0c360088128bf40fb3bf951adae74ef082776fea2ad0da1f85caa59a11", size = 3390830, upload-time = "2024-06-20T11:43:23.01Z" },
+    { url = "https://files.pythonhosted.org/packages/32/6e/ac826471e76fe3ada1312561ffe6cb6ffaa4ea9d47fd6c42e1e307748141/evidently-0.7.20-py3-none-any.whl", hash = "sha256:af75da94c321d642b9706e64841abb78421cfda110f375ecfa0f157dcbbb0bef", size = 11739782, upload-time = "2026-01-09T11:54:13.982Z" },
 ]
 
 [[package]]
@@ -2960,6 +2976,18 @@ wheels = [
 ]
 
 [[package]]
+name = "opentelemetry-proto"
+version = "1.39.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "protobuf" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/49/1d/f25d76d8260c156c40c97c9ed4511ec0f9ce353f8108ca6e7561f82a06b2/opentelemetry_proto-1.39.1.tar.gz", hash = "sha256:6c8e05144fc0d3ed4d22c2289c6b126e03bcd0e6a7da0f16cedd2e1c2772e2c8", size = 46152, upload-time = "2025-12-11T13:32:48.681Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/51/95/b40c96a7b5203005a0b03d8ce8cd212ff23f1793d5ba289c87a097571b18/opentelemetry_proto-1.39.1-py3-none-any.whl", hash = "sha256:22cdc78efd3b3765d09e68bfbd010d4fc254c9818afd0b6b423387d9dee46007", size = 72535, upload-time = "2025-12-11T13:32:33.866Z" },
+]
+
+[[package]]
 name = "orjson"
 version = "3.11.5"
 source = { registry = "https://pypi.org/simple" }
@@ -3237,7 +3265,7 @@ requires-dist = [
     { name = "dvc", specifier = ">=3.65.0" },
     { name = "dvc-gdrive", specifier = ">=3.0.1" },
     { name = "dvc-gs", specifier = ">=3.0.2" },
-    { name = "evidently", specifier = "==0.4.28" },
+    { name = "evidently", specifier = "==0.7.20" },
     { name = "fastapi", specifier = "==0.128.0" },
     { name = "gdown", specifier = ">=5.2.1" },
     { name = "google-cloud-storage", specifier = ">=3.8.0" },
@@ -4923,6 +4951,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/c7/24/5f1b3bdffd70275f6661c76461e25f024d5a38a46f04aaca912426a2b1d3/urllib3-2.6.3.tar.gz", hash = "sha256:1b62b6884944a57dbe321509ab94fd4d3b307075e0c2eae991ac71ee15ad38ed", size = 435556, upload-time = "2026-01-07T16:24:43.925Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/39/08/aaaad47bc4e9dc8c725e68f9d04865dbcb2052843ff09c97b08904852d84/urllib3-2.6.3-py3-none-any.whl", hash = "sha256:bf272323e553dfb2e87d9bfd225ca7b0f467b919d7bbd355436d3fd37cb0acd4", size = 131584, upload-time = "2026-01-07T16:24:42.685Z" },
+]
+
+[[package]]
+name = "uuid6"
+version = "2025.0.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ca/b7/4c0f736ca824b3a25b15e8213d1bcfc15f8ac2ae48d1b445b310892dc4da/uuid6-2025.0.1.tar.gz", hash = "sha256:cd0af94fa428675a44e32c5319ec5a3485225ba2179eefcf4c3f205ae30a81bd", size = 13932, upload-time = "2025-07-04T18:30:35.186Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3d/b2/93faaab7962e2aa8d6e174afb6f76be2ca0ce89fde14d3af835acebcaa59/uuid6-2025.0.1-py3-none-any.whl", hash = "sha256:80530ce4d02a93cdf82e7122ca0da3ebbbc269790ec1cb902481fa3e9cc9ff99", size = 6979, upload-time = "2025-07-04T18:30:34.001Z" },
 ]
 
 [[package]]
